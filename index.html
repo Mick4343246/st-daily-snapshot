@@ -1,1 +1,117 @@
-"<h1>Snapshot loading...</h1>" 
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daily Trays Snapshot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #efede5; --paper-raised: #f7f5ee; --ink: #211e1a; --ink-soft: #5c584f;
+    --ink-faint: #8b867a; --rule: #d9d4c6; --rule-strong: #c3bda9; --hold: #b45f22;
+    --hold-soft: #e7d3c1; --sold: #2c6b4c; --sold-soft: #d3ddd2; --stamp: #1f3b57;
+    --font-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+    --font-body: "IBM Plex Sans", "Segoe UI", sans-serif;
+    --font-mono: "IBM Plex Mono", "SFMono-Regular", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #1a1815; --paper-raised: #221f1a; --ink: #f1ede2; --ink-soft: #b9b2a1;
+      --ink-faint: #837c6d; --rule: #3a362d; --rule-strong: #4c4739; --hold: #e08a4a;
+      --hold-soft: #4a3626; --sold: #6bab8a; --sold-soft: #2a3d33; --stamp: #7fa8cc;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #1a1815; --paper-raised: #221f1a; --ink: #f1ede2; --ink-soft: #b9b2a1;
+    --ink-faint: #837c6d; --rule: #3a362d; --rule-strong: #4c4739; --hold: #e08a4a;
+    --hold-soft: #4a3626; --sold: #6bab8a; --sold-soft: #2a3d33; --stamp: #7fa8cc;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-body); -webkit-font-smoothing: antialiased; line-height: 1.5; }
+  .sheet { max-width: 760px; margin: 0 auto; padding: 2.5rem 1.5rem 3.5rem; }
+  .masthead { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; padding-bottom: 1.1rem; border-bottom: 2px solid var(--ink); }
+  .masthead .eyebrow { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); margin: 0 0 0.35rem; }
+  .masthead h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(2.1rem, 6vw, 2.9rem); letter-spacing: 0.01em; line-height: 0.95; margin: 0; text-wrap: balance; }
+  .docket-no { text-align: right; font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink-soft); white-space: nowrap; }
+  .docket-no .no { display: block; font-size: 1.05rem; color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
+  .subhead { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.88rem; color: var(--ink-soft); padding: 0.7rem 0 0; }
+  .subhead strong { color: var(--ink); font-weight: 600; }
+  .panels { display: grid; grid-template-columns: 1fr; gap: 1.1rem; margin-top: 1.8rem; }
+  .panel { position: relative; background: var(--paper-raised); border: 1px solid var(--rule-strong); border-radius: 2px; padding: 1.5rem 1.6rem 1.4rem; overflow: hidden; }
+  .panel::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 7px; background: var(--stripe); }
+  .panel--hold { --stripe: var(--hold); }
+  .panel--sold { --stripe: var(--sold); }
+  .panel-head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.75rem; margin-bottom: 0.15rem; }
+  .panel-title { font-family: var(--font-display); font-weight: 700; font-size: 1.35rem; letter-spacing: 0.01em; margin: 0; }
+  .chip { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.22rem 0.55rem; border-radius: 999px; white-space: nowrap; }
+  .panel--hold .chip { background: var(--hold-soft); color: var(--hold); }
+  .panel--sold .chip { background: var(--sold-soft); color: var(--sold); }
+  .panel-meta { font-size: 0.82rem; color: var(--ink-faint); margin: 0 0 1rem; }
+  .figure-row { display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
+  .figure { font-family: var(--font-mono); font-weight: 600; font-size: clamp(2.1rem, 7vw, 2.65rem); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; line-height: 1; }
+  .figure-unit { font-family: var(--font-body); font-size: 0.95rem; color: var(--ink-soft); }
+  .delta-line { display: flex; align-items: center; gap: 0.55rem; margin-top: 0.95rem; padding-top: 0.85rem; border-top: 1px dashed var(--rule-strong); font-size: 0.9rem; color: var(--ink-soft); }
+  .delta-line .arrow { font-family: var(--font-mono); color: var(--stripe); font-size: 1rem; }
+  .delta-line .delta-figure { font-family: var(--font-mono); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .panel-note { margin-top: 0.7rem; font-size: 0.78rem; color: var(--ink-faint); }
+  .colophon { margin-top: 2.2rem; padding-top: 1rem; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.76rem; color: var(--ink-faint); }
+  .colophon .stamp { font-family: var(--font-mono); color: var(--stamp); border: 1px solid currentColor; padding: 0.15rem 0.5rem; border-radius: 2px; letter-spacing: 0.06em; text-transform: uppercase; font-size: 0.68rem; }
+  @media (min-width: 620px) { .panels { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <header class="masthead">
+    <div>
+      <p class="eyebrow">Daily Ops Snapshot &middot; ServiceTitan</p>
+      <h1>Trays &amp; Sales<br>Snapshot</h1>
+    </div>
+    <div class="docket-no">Docket <span class="no">No. 2026082711</span></div>
+  </header>
+
+  <div class="subhead">
+    <span>Generated <strong>27 Aug 2026, 11:06 AM AEST/AEDT</strong></span>
+    <span>Auto-refreshes hourly</span>
+  </div>
+
+  <div class="panels">
+    <section class="panel panel--hold">
+      <div class="panel-head">
+        <h2 class="panel-title">On&#8209;Hold Tray</h2>
+        <span class="chip">Open jobs</span>
+      </div>
+      <p class="panel-meta">All jobs currently sitting in Hold status</p>
+      <div class="figure-row"><span class="figure">$200,822.20</span></div>
+      <p class="figure-unit">across 32 jobs</p>
+      <div class="delta-line">
+        <span class="arrow">&#8599;</span>
+        <span>Last 24h: <span class="delta-figure">7 jobs / $50,504.30</span></span>
+      </div>
+      <p class="panel-note">24h figure uses each job&rsquo;s last-modified time as the closest available signal to when it entered Hold.</p>
+    </section>
+
+    <section class="panel panel--sold">
+      <div class="panel-head">
+        <h2 class="panel-title">Sold &ndash; Not Completed</h2>
+        <span class="chip">Last 30 days</span>
+      </div>
+      <p class="panel-meta">Sold 28 Jul &ndash; 27 Aug 2026, not yet completed</p>
+      <div class="figure-row"><span class="figure">$40,410.12</span></div>
+      <p class="figure-unit">across 10 estimates</p>
+      <div class="delta-line">
+        <span class="arrow">&#8599;</span>
+        <span>Last 24h: <span class="delta-figure">0 estimate(s) / $0.00</span></span>
+      </div>
+      <p class="panel-note">Nothing sold yet in this window. Sale dates are date-only, so this reflects today&rsquo;s local calendar day.</p>
+    </section>
+  </div>
+
+  <div class="colophon">
+    <span class="stamp">Live</span>
+    <span>Generated automatically every hour straight from ServiceTitan. Figures reflect the moment of generation.</span>
+  </div>
+</div>
+</body>
+</html>
